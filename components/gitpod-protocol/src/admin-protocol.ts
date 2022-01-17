@@ -5,6 +5,7 @@
  */
 
 import { User, Workspace, NamedWorkspaceFeatureFlag } from "./protocol";
+import { Project } from "./teams-projects-protocol";
 import { WorkspaceInstance, WorkspaceInstancePhase } from "./workspace-instance";
 import { RoleOrPermission } from "./permission";
 import { AccountStatement } from "./accounting-protocol";
@@ -21,6 +22,8 @@ export interface AdminServer {
     adminGetWorkspace(id: string): Promise<WorkspaceAndInstance>;
     adminForceStopWorkspace(id: string): Promise<void>;
     adminRestoreSoftDeletedWorkspace(id: string): Promise<void>;
+
+    adminGetProjectsBySearchTerm(req: AdminGetListRequest<Project>): Promise<AdminGetListResult<Project>>;
 
     adminSetLicense(key: string): Promise<void>;
 

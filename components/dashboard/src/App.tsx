@@ -52,6 +52,7 @@ const InstallGitHubApp = React.lazy(() => import(/* webpackPrefetch: true */ './
 const FromReferrer = React.lazy(() => import(/* webpackPrefetch: true */ './FromReferrer'));
 const UserSearch = React.lazy(() => import(/* webpackPrefetch: true */ './admin/UserSearch'));
 const WorkspacesSearch = React.lazy(() => import(/* webpackPrefetch: true */ './admin/WorkspacesSearch'));
+const ProjectsSearch = React.lazy(() => import(/* webpackPrefetch: true */ './admin/ProjectsSearch'));
 const OAuthClientApproval = React.lazy(() => import(/* webpackPrefetch: true */ './OauthClientApproval'));
 
 function Loading() {
@@ -279,6 +280,7 @@ function App() {
 
                 <Route path="/admin/users" component={UserSearch} />
                 <Route path="/admin/workspaces" component={WorkspacesSearch} />
+                <Route path="/admin/projects" component={ProjectsSearch} />
 
                 <Route path={["/", "/login"]} exact>
                     <Redirect to={workspacesPathMain} />
