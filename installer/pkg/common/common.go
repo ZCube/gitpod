@@ -10,10 +10,12 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"strconv"
 	"strings"
 
 	wsk8s "github.com/gitpod-io/gitpod/common-go/kubernetes"
 	config "github.com/gitpod-io/gitpod/installer/pkg/config/v1"
+	"github.com/gitpod-io/gitpod/installer/pkg/config/v1/experimental"
 
 	"github.com/docker/distribution/reference"
 	appsv1 "k8s.io/api/apps/v1"
@@ -79,9 +81,21 @@ func TracingEnv(cfg *config.Config) (res []corev1.EnvVar) {
 		//			 but would make env var composition more cumbersome.
 	}
 
+	samplerType := experimental.TracingSampleTypeConst
+	sampleParam := "1"
+
+	if cfg.Experimental != nil && cfg.Experimental.Observability != nil && cfg.Experimental.Observability.Tracing != nil {
+		if st := cfg.Experimental.Observability.Tracing.SamplerType; st != nil {
+			samplerType = *st
+		}
+		if sp := cfg.Experimental.Observability.Tracing.SamplerParam; sp != nil {
+			sampleParam = strconv.FormatFloat(*sp, 'f', -1, 64)
+		}
+	}
+
 	res = append(res,
-		corev1.EnvVar{Name: "JAEGER_SAMPLER_TYPE", Value: "const"},
-		corev1.EnvVar{Name: "JAEGER_SAMPLER_PARAM", Value: "1"},
+		corev1.EnvVar{Name: "JAEGER_SAMPLER_TYPE", Value: string(samplerType)},
+		corev1.EnvVar{Name: "JAEGER_SAMPLER_PARAM", Value: sampleParam},
 	)
 
 	return
