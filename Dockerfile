@@ -16,4 +16,5 @@ ENV CI="false"
 
 RUN sudo chown gitpod:gitpod -R /github/home/ && \
     docker login $REGISTRY -u $GITHUB_ACTOR -p $GITHUB_TOKEN && \
-    leeway -DSEGMENT_IO_TOKEN=$SEGMENT_IO_TOKEN -DpublishToNPM=$PUBLISH_TO_NPM -DimageRepoBase=ghcr.io/gitpod-arm/gitpod -Dversion=$VERSION-$(dpkg --print-architecture) build components:all-docker --dont-test --dont-retag
+#    leeway -DSEGMENT_IO_TOKEN=$SEGMENT_IO_TOKEN -DpublishToNPM=$PUBLISH_TO_NPM -DimageRepoBase=ghcr.io/gitpod-arm/gitpod -Dversion=$VERSION-$(dpkg --print-architecture) build components:all-docker --dont-test --dont-retag
+    leeway -DSEGMENT_IO_TOKEN=$SEGMENT_IO_TOKEN -DpublishToNPM=$PUBLISH_TO_NPM -DimageRepoBase=ghcr.io/gitpod-arm/gitpod -Dversion=$VERSION-$(dpkg --print-architecture) build components:all --dont-test --dont-retag
