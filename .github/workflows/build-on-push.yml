@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOARCH: amd64
+      LEEWAY_REMOTE_CACHE_BUCKET: amd64
+      LEEWAY_REMOTE_CACHE_STORAGE: MINIO
     permissions:
       contents: read
       packages: write
@@ -72,12 +74,14 @@ jobs:
         uses: docker://ghcr.io/gitpod-arm/workspace-images/gitpod-dev:arm64@sha256:3738e57d85354de898b9ad9948ae6f83c0759ed81b2c92f4ded6f531c550bc4c
         with:
           args: |
-            /bin/bash -c "sudo chown gitpod:gitpod -R /github/home/ && docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} && leeway -DSEGMENT_IO_TOKEN=${{ env.SEGMENT_IO_TOKEN }} -DpublishToNPM=${{ env.publishToNPM }} -DimageRepoBase=ghcr.io/gitpod-arm/gitpod -Dversion=${{ env.version }}-amd64 build components:all-docker --dont-test --dont-retag"
+            /bin/bash -c "sudo chown gitpod:gitpod -R /github/home/ && mc config host add minio http://nas.zcube.kr:55090 ${{ secrets.MINIO_ACCESS_KEY }} ${{ secrets.MINIO_SECRET_KEY }} && docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} && leeway -DSEGMENT_IO_TOKEN=${{ env.SEGMENT_IO_TOKEN }} -DpublishToNPM=${{ env.publishToNPM }} -DimageRepoBase=ghcr.io/gitpod-arm/gitpod -Dversion=${{ env.version }}-amd64 build components:all-docker --dont-test --dont-retag"
 
   build-gitpod-arm64:
     runs-on: ubuntu-latest
     env:
       GOARCH: arm64
+      LEEWAY_REMOTE_CACHE_BUCKET: arm64
+      LEEWAY_REMOTE_CACHE_STORAGE: MINIO
     permissions:
       contents: read
       packages: write
@@ -146,4 +150,4 @@ jobs:
         uses: docker://ghcr.io/gitpod-arm/workspace-images/gitpod-dev:arm64@sha256:9bcb27c3d13737c57a6b1c5791c62845ee37af0f28ae70a3fd31975d3510a9c7
         with:
           args: |
-            /bin/bash -c "sudo touch /proc/cpuinfo && sudo mount -o ro,bind cpuinfo_rpi4 /proc/cpuinfo && sudo chown gitpod:gitpod -R /github/home/ && docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} && leeway -DSEGMENT_IO_TOKEN=${{ env.SEGMENT_IO_TOKEN }} -DpublishToNPM=${{ env.publishToNPM }} -DimageRepoBase=ghcr.io/gitpod-arm/gitpod -Dversion=${{ env.version }}-amd64 build components:all-docker --dont-test --dont-retag"
+            /bin/bash -c "sudo chown gitpod:gitpod -R /github/home/ && mc config host add minio http://nas.zcube.kr:55090 ${{ secrets.MINIO_ACCESS_KEY }} ${{ secrets.MINIO_SECRET_KEY }} && docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} && leeway -DSEGMENT_IO_TOKEN=${{ env.SEGMENT_IO_TOKEN }} -DpublishToNPM=${{ env.publishToNPM }} -DimageRepoBase=ghcr.io/gitpod-arm/gitpod -Dversion=${{ env.version }}-amd64 build components:all-docker --dont-test --dont-retag"
