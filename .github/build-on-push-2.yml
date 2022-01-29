@@ -70,7 +70,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/gitpod-arm/gitpod:${{ matrix.arch }}
+          tags: ghcr.io/gitpod-arm/gitpod/all:${{ matrix.arch }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/${{ matrix.arch }}
           build-args: |
