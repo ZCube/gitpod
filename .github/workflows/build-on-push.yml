@@ -7,6 +7,7 @@ env:
   publishToNPM: "false"
   SEGMENT_IO_TOKEN: ""
   version: "devel"
+  LEEWAY_YARN_MUTEX: "file"
   LEEWAY_WORKSPACE_ROOT: "/github/workspace"
   JAVA_HOME: "/home/gitpod/.sdkman/candidates/java/current"
   # components/dashboard:app need this
