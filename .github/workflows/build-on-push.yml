@@ -14,7 +14,7 @@ env:
 
 jobs:
   build-gitpod-amd64:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64]
     env:
       GOARCH: amd64
       LEEWAY_REMOTE_CACHE_BUCKET: amd64
@@ -69,7 +69,7 @@ jobs:
             /bin/bash -c "sudo chown gitpod:gitpod -R /github/home/ && mc config host add minio http://nas.zcube.kr:55090 ${{ secrets.MINIO_ACCESS_KEY }} ${{ secrets.MINIO_SECRET_KEY }} && docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} && leeway -DSEGMENT_IO_TOKEN=${{ env.SEGMENT_IO_TOKEN }} -DpublishToNPM=${{ env.publishToNPM }} -DimageRepoBase=ghcr.io/gitpod-arm/gitpod -Dversion=${{ env.version }}-${{ env.GOARCH }} build components:all-docker --dont-test --dont-retag"
 
   build-gitpod-arm64:
-    runs-on: ARM64
+    runs-on: [self-hosted, linux, ARM64]
     env:
       GOARCH: arm64
       LEEWAY_REMOTE_CACHE_BUCKET: arm64
