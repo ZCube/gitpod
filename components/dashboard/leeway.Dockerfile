@@ -30,7 +30,7 @@ RUN for FILE in `ls /www/static/bin/gitpod-local-companion*`;do \
   gzip -v -f -9 -k "$FILE"; \
 done
 
-FROM caddy/caddy:2.4.0-alpine
+FROM caddy:2.4.0-alpine
 
 COPY components-dashboard--static/conf/Caddyfile /etc/caddy/Caddyfile
 COPY --from=compress /www /www
