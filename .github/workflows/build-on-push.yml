@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: sudo chmod 777 /var/run/docker.sock
       - name: build
-        uses: docker://${{ env.BUILD_IMAGE }}
+        uses: docker://ghcr.io/zcube/workspace-images/gitpod-dev:arm64
         with:
           args: |
             /bin/bash -c "sudo chown gitpod:gitpod -R /github/home/ &&
@@ -119,7 +119,7 @@ jobs:
         shell: bash
         run: sudo chmod 777 /var/run/docker.sock
       - name: build
-        uses: docker://${{ env.BUILD_IMAGE }}
+        uses: docker://ghcr.io/zcube/workspace-images/gitpod-dev:arm64
         with:
           args: |
             /bin/bash -c "sudo chown gitpod:gitpod -R /github/home/ &&
