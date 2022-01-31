@@ -68,9 +68,10 @@ jobs:
         with:
           args: |
             /bin/bash -c "sudo chown gitpod:gitpod -R /github/home/ &&
+            yarn config set network-timeout 600000 -g &&
             mc config host add minio http://nas.zcube.kr:55090 ${{ secrets.MINIO_ACCESS_KEY }} ${{ secrets.MINIO_SECRET_KEY }} &&
             docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} &&
-            leeway -DSEGMENT_IO_TOKEN=${{ env.SEGMENT_IO_TOKEN }} -DpublishToNPM=${{ env.publishToNPM }} -DimageRepoBase=${{ env.IMAGE_REPO_BASE }} -Dversion=${{ env.version }}-${{ env.GOARCH }} build components:all-docker --dont-test --dont-retag -j 1"
+            leeway -DSEGMENT_IO_TOKEN=${{ env.SEGMENT_IO_TOKEN }} -DpublishToNPM=${{ env.publishToNPM }} -DimageRepoBase=${{ env.IMAGE_REPO_BASE }} -Dversion=${{ env.version }}-${{ env.GOARCH }} build components:all-docker --dont-test --dont-retag -j 4"
 
   build-gitpod-arm64:
     runs-on: [self-hosted, linux, ARM64]
@@ -124,6 +125,7 @@ jobs:
         with:
           args: |
             /bin/bash -c "sudo chown gitpod:gitpod -R /github/home/ &&
+            yarn config set network-timeout 600000 -g &&
             mc config host add minio http://nas.zcube.kr:55090 ${{ secrets.MINIO_ACCESS_KEY }} ${{ secrets.MINIO_SECRET_KEY }} &&
             docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} &&
-            leeway -DSEGMENT_IO_TOKEN=${{ env.SEGMENT_IO_TOKEN }} -DpublishToNPM=${{ env.publishToNPM }} -DimageRepoBase=${{ env.IMAGE_REPO_BASE }} -Dversion=${{ env.version }}-${{ env.GOARCH }} build components:all-docker --dont-test --dont-retag -j 1"
+            leeway -DSEGMENT_IO_TOKEN=${{ env.SEGMENT_IO_TOKEN }} -DpublishToNPM=${{ env.publishToNPM }} -DimageRepoBase=${{ env.IMAGE_REPO_BASE }} -Dversion=${{ env.version }}-${{ env.GOARCH }} build components:all-docker --dont-test --dont-retag -j 4"
