@@ -15,7 +15,7 @@ RUN arch="$(uname -m)"; \
 		*) echo >&2 "error: unsupported architecture '$arch'"; exit 1 ;; \
 	esac; \
   apk add --no-cache curl \
-  && curl -o runc -L https://github.com/opencontainers/runc/releases/download/v1.0.1/runc.${ARCH} \
+  && curl -o runc -L https://github.com/opencontainers/runc/releases/download/v1.1.0/runc.${ARCH} \
   && chmod +x runc
 
 FROM alpine:3.15
