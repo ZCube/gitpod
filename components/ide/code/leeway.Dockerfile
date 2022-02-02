@@ -70,7 +70,7 @@ RUN chmod -R ugo+x /ide/bin
 # grant write permissions for built-in extensions
 RUN chmod -R ugo+w /vscode-reh-linux/extensions
 
-FROM scratch
+FROM ubuntu:18.04
 # copy static web resources in first layer to serve from blobserve
 COPY --from=code_installer --chown=33333:33333 /vscode-web/ /ide/
 COPY --from=code_installer --chown=33333:33333 /vscode-reh-linux/ /ide/
