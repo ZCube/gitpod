@@ -46,11 +46,11 @@ RUN arch="$(uname -m)"; \
 	case "$arch" in \
 		'x86_64') \
 			yarn gulp vscode-reh-linux-x64-min \
-            mv /vscode-reh-linux-x64 /vscode-reh-linux \
+                        && mv /vscode-reh-linux-x64 /vscode-reh-linux \
 			;; \
 		'aarch64') \
 			yarn gulp vscode-reh-linux-arm64-min \
-            mv /vscode-reh-linux-arm64 /vscode-reh-linux \
+                        && mv /vscode-reh-linux-arm64 /vscode-reh-linux \
 			;; \
 		*) echo >&2 "error: unsupported architecture '$arch'"; exit 1 ;; \
 	esac;
