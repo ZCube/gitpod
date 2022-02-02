@@ -129,3 +129,77 @@ jobs:
             mc config host add minio http://nas.zcube.kr:55090 ${{ secrets.MINIO_ACCESS_KEY }} ${{ secrets.MINIO_SECRET_KEY }} &&
             docker login ${{ env.REGISTRY }} -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} &&
             leeway -DSEGMENT_IO_TOKEN=${{ env.SEGMENT_IO_TOKEN }} -DpublishToNPM=${{ env.publishToNPM }} -DimageRepoBase=${{ env.IMAGE_REPO_BASE }} -Dversion=${{ env.version }}-${{ env.GOARCH }} build components:all-docker --dont-test --dont-retag -j 4"
+
+  merge-gitpod:
+    needs: [build-gitpod-arm64, build-gitpod-amd64]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up QEMU dependency
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Log in to the container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.APP }}
+      # https://stackoverflow.com/questions/58033366/how-to-get-the-current-branch-within-github-actions
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - name: Extract lowercase repository name
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ github.repository }}
+        id: string
+      - name: build
+        uses: docker://ghcr.io/zcube/workspace-images/gitpod-dev:arm64
+        with:
+          args: |
+            export IMAGE=agent-smith                           &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=blobserve                             &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ca-updater                            &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=content-service                       &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=dashboard                             &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=db-migrations                         &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=docker-up                             &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ide-proxy                             &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ide/code                              &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ide/code-base                         &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ide/goland                            &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ide/goland                            &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ide/intellij                          &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ide/intellij                          &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ide/phpstorm                          &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ide/pycharm                           &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ide/pycharm                           &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=image-builder-mk3                     &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=image-builder-mk3/bob                 &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=installation-telemetry                &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=local-app                             &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=local-app                             &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=openvsx-proxy                         &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=payment-endpoint                      &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=proxy                                 &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=registry-facade                       &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=seccomp-profile-installer             &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=server                                &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=service-waiter                        &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=supervisor                            &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=workspacekit                          &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ws-daemon                             &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ws-manager                            &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ws-manager-bridge                     &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel \
+            export IMAGE=ws-proxy                              &&  docker manifest create ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-arm64 --amend ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel-amd64 && docker manifest push ${{ env.IMAGE_REPO_BASE }}/${IMAGE}:devel
