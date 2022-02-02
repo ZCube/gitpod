@@ -7,7 +7,7 @@ WORKDIR /dl
 RUN arch="$(uname -m)"; \
 	case "$arch" in \
 		'x86_64') \
-			export ARCH='x86_64' \
+			export ARCH='amd64' \
 			;; \
 		'aarch64') \
 			export ARCH='arm64' \
