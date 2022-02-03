@@ -4,28 +4,7 @@
 
 # BUILDER_BASE is a placeholder, will be replaced before build time
 # Check BUILD.yaml
-FROM ubuntu:18.04 as code_installer
-
-# we use latest major version of Node.js distributed VS Code. (see about dialog in your local VS Code)
-# ideallay we should use exact version, but it has criticla bugs in regards to grpc over http2 streams
-ARG NODE_VERSION=14.18.2
-
-RUN apt-get update \
-    # see https://github.com/microsoft/vscode/blob/42e271dd2e7c8f320f991034b62d4c703afb3e28/.github/workflows/ci.yml#L94
-    && apt-get -y install --no-install-recommends libxkbfile-dev pkg-config libsecret-1-dev libxss1 dbus xvfb libgtk-3-0 libgbm1 \
-    && apt-get -y install --no-install-recommends git curl build-essential libssl-dev ca-certificates python \
-    # Clean up
-    && apt-get autoremove -y \
-    && apt-get clean -y \
-    && rm -rf /var/lib/apt/lists/*
-
-ENV NVM_DIR /root/.nvm
-RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash \
-    && . $NVM_DIR/nvm.sh  \
-    && nvm install $NODE_VERSION \
-    && nvm alias default $NODE_VERSION \
-    && npm install -g yarn node-gyp
-ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+FROM BUILDER_BASE as code_installer
 
 ARG CODE_COMMIT
 
@@ -43,17 +22,17 @@ RUN yarn --frozen-lockfile --network-timeout 180000
 RUN yarn --cwd ./extensions compile
 RUN yarn gulp vscode-web-min
 RUN arch="$(uname -m)"; \
-	case "$arch" in \
-		'x86_64') \
-			yarn gulp vscode-reh-linux-x64-min \
-                        && mv /vscode-reh-linux-x64 /vscode-reh-linux \
-			;; \
-		'aarch64') \
-			yarn gulp vscode-reh-linux-arm64-min \
-                        && mv /vscode-reh-linux-arm64 /vscode-reh-linux \
-			;; \
-		*) echo >&2 "error: unsupported architecture '$arch'"; exit 1 ;; \
-	esac;
+    case "$arch" in \
+        'x86_64') \
+            yarn gulp vscode-reh-linux-x64-min \
+            && mv /vscode-reh-linux-x64 /vscode-reh-linux \
+            ;; \
+        'aarch64') \
+            yarn gulp vscode-reh-linux-arm64-min \
+            && mv /vscode-reh-linux-arm64 /vscode-reh-linux \
+            ;; \
+        *) echo >&2 "error: unsupported architecture '$arch'"; exit 1 ;; \
+    esac;
 
 # config for first layer needed by blobserve
 # we also remove `static/` from resource urls as that's needed by blobserve,
